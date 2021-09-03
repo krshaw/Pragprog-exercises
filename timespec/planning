@@ -1,0 +1,8 @@
+one or two digits
+can be standard or military time
+dont worry about checking for valid times...
+so a digit is 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+one or two digits
+followed by optional colon
+follow by zero or two digits (cant be 1)
+follow by nothing, or am, or pm

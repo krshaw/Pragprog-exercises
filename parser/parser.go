@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 )
 
 type CommandValue struct {
@@ -14,16 +13,14 @@ type CommandValue struct {
 	handler func([]int)
 }
 
-const ARG = true
-const NOARG = !ARG
-
 type ParsingTable map[byte]CommandValue
 
 func (table ParsingTable) initialize() {
 	table['P'] = CommandValue{ARG, selectPen}
-	table['D'] = CommandValue{NOARG, penDown}
-	table['W'] = CommandValue{ARG, drawWest}
 }
+
+const ARG = true
+const NOARG = !ARG
 
 func executeInstrs(scanner *bufio.Scanner, table ParsingTable) {
 	for scanner.Scan() {
@@ -37,36 +34,17 @@ func executeInstrs(scanner *bufio.Scanner, table ParsingTable) {
 
 //TODO: handle error where the command is not in the table!
 func execute(instr []byte, table ParsingTable) {
-	if len(instr) < 1 {
-		return // white space / blank lines shouldnt break anything
-	}
 	// first byte is the instr name, following bytes are the arguments (if any)
+	fmt.Println(string(instr))
 	instrName := instr[0]
-	commandValue, ok := table[instrName]
-	if !ok {
-		log.Fatal(fmt.Sprintf("%b is not a valid instruction\n", instrName))
-	}
-	var args []int
+	commandValue := table[instrName]
+	args := make([]int, 5) // 5 should be sufficient, realistically wont be more than
 	if commandValue.ARG {
-		args = convertArgsToInt(instr)
+		splitArgs := bytes.Split(instr[2:], []byte(" "))
+		rawArgs := bytes.Join(splitArgs, []byte(""))
+		fmt.Println(string(rawArgs))
 	}
 	commandValue.handler(args)
-}
-
-func convertArgsToInt(instr []byte) []int {
-	if len(instr) < 3 { // less than 3 means there is no argument, even though there should be
-		log.Fatal(fmt.Sprintf("Instruction %c requires argument(s)\n", instr[0]))
-	}
-	splitArgs := bytes.Split(instr[2:], []byte(" "))
-	var convertedArgs []int
-	for _, arg := range splitArgs {
-		convertedArg, err := strconv.Atoi(string(arg))
-		if err != nil {
-			log.Fatal(err)
-		}
-		convertedArgs = append(convertedArgs, convertedArg)
-	}
-	return convertedArgs
 }
 
 func main() {
@@ -84,13 +62,9 @@ func main() {
 }
 
 func selectPen(penType []int) {
+	if len(penType) != 1 {
+		fmt.Printf("selectPen requires 1 argument, not %v\n", len(penType))
+		return
+	}
 	fmt.Printf("Selecting Pen #%v\n", penType[0])
-}
-
-func penDown(_ []int) {
-	fmt.Printf("Putting the pen down\n")
-}
-
-func drawWest(distance []int) {
-	fmt.Printf("Drawing west %v cm\n", distance[0])
 }
