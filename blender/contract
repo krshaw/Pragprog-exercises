@@ -1,0 +1,25 @@
+int getSpeed()
+	pre: nothing required
+	post: nothing required
+	just a read only method (so invariant is still held)
+
+void setSpeed(int x)
+	pre:
+		1. x >= 0 && x <= 9
+		2. abs(x - getSpeed()) <= 1
+		3. if x > 0 { isFull() }
+	post:
+		1. getSpeed() == x
+
+void fill()
+	// can't fill twice
+	pre:
+		1. !isFull()
+	post:
+		1. isFull()
+
+void empty()
+	pre:
+		1. isFull()
+	post:
+		1. !isFull
